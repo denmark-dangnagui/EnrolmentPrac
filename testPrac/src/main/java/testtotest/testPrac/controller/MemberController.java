@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import testtotest.testPrac.dto.ApplyDto;
 import testtotest.testPrac.dto.TemporalSaveDto;
+import testtotest.testPrac.entity.application.Application;
 import testtotest.testPrac.entity.member.Member;
 import testtotest.testPrac.repository.MemberRepository;
 import testtotest.testPrac.service.MemberService;
@@ -63,7 +64,11 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-
+    @PutMapping("/exceed")
+    public ResponseEntity<?> changeStatus(){
+        memberService.changeStatus();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 
 

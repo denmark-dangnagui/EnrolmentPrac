@@ -58,11 +58,10 @@ public class MemberService {
     //임시저장한 글 리스트 보기
     public List<TemporalSaveDto> getAllTemp(Member member) {
         List<TemporalSaveDto> result = new ArrayList<>();
-        List<Application> applicationList = applicationRepository.findAllByMember(member).stream()
-                .filter(application -> application.getRegistStatus().equals(ApplyStatus.ING))
-                .collect(Collectors.toList());
+        List<Application> applicationList = applicationRepository.findAllByMember(member);
         for (Application a : applicationList) {
             TemporalSaveDto temporalSaveDto = new TemporalSaveDto();
+            temporalSaveDto.setApplyStatus(a.getRegistStatus());
             temporalSaveDto.setApplyId(a.getId());
             temporalSaveDto.setTitle(a.getTitle());
             temporalSaveDto.setLectureName(a.getLecture().getLectureName());
@@ -84,8 +83,8 @@ public class MemberService {
         return result;
     }
 
-//    //임시저장한 지원서 단건 조회
-    public ApplyDto getOneApplication(Long applyId){
+    //    //임시저장한 지원서 단건 조회
+    public ApplyDto getOneApplication(Long applyId) {
         ApplyDto dto = new ApplyDto();
         Application findApplication = applicationRepository.findById(applyId).orElseThrow();
         dto.setApplyId(findApplication.getId());
@@ -101,9 +100,9 @@ public class MemberService {
 
     //임시저장한 글 수정하기
     @Transactional
-    public void updateApply(ApplyDto applyDto, Long applyId){
+    public void updateApply(ApplyDto applyDto, Long applyId) {
         Application application = applicationRepository.findById(applyId).orElseThrow();
-        if (application.getRegistStatus().equals(ApplyStatus.DONE)){
+        if (application.getRegistStatus().equals(ApplyStatus.DONE)) {
             throw new DoneException("이미 지원완료된 지원서입니다!");
         }
         application.setTitle(applyDto.getTitle());
@@ -114,7 +113,13 @@ public class MemberService {
 
     //지원서 삭제하기
     @Transactional
-    public void deleteApply(Long applyId){
+    public void deleteApply(Long applyId) {
+        Application application = applicationRepository.findById(applyId).orElseThrow();
+        if (application.getRegistStatus().equals(ApplyStatus.DONE)) {
+            throw new DoneException("지원완료된 지원서는 삭제할 수 없습니다!");
+        }
+        Member member = application.getMember();
+        member.setApplyCnt(member.getApplyCnt() - 1);
         applicationRepository.deleteById(applyId);
     }
 
@@ -143,6 +148,18 @@ public class MemberService {
         overDate(application, lecture);
         applicationRepository.save(application);
         member.setApplyCnt(member.getApplyCnt() + 1);
+    }
+
+    @Transactional
+    public void changeStatus() {
+        Lecture lecture = lectureRepository.findById(1L).orElseThrow();
+        lecture.setApplyEnd(LocalDateTime.now().minusDays(100));
+        List<Application> ingList = applicationRepository.findAllByLectureId(1L).stream().filter(l -> l.getRegistStatus().equals(ApplyStatus.ING)).collect(Collectors.toList());
+        for (Application application : ingList) {
+            Member member = application.getMember();
+            member.setApplyCnt(member.getApplyCnt() - 1);
+            application.setRegistStatus(ApplyStatus.FAIL);
+        }
     }
 
 

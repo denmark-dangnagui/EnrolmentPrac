@@ -1,6 +1,7 @@
 package testtotest.testPrac.entity.application;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import testtotest.testPrac.entity.lecture.Lecture;
@@ -17,9 +18,11 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     private Member member;
 
+    @JsonIgnore
     @ManyToOne
     private Lecture lecture;
 
