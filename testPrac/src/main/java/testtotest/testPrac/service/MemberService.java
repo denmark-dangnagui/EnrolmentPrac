@@ -55,7 +55,7 @@ public class MemberService {
         member.setApplyCnt(member.getApplyCnt() + 1);
     }
 
-    //임시저장한 글 리스트 보기
+    //저장한 지원서 리스트 보기
     public List<TemporalSaveDto> getAllTemp(Member member) {
         List<TemporalSaveDto> result = new ArrayList<>();
         List<Application> applicationList = applicationRepository.findAllByMember(member);

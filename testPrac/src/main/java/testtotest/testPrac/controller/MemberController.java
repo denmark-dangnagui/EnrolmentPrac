@@ -64,6 +64,7 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    //모집기한 지나면 불합격처리 하는 api
     @PutMapping("/exceed")
     public ResponseEntity<?> changeStatus(){
         memberService.changeStatus();
